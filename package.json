@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "@iconify-json/ph": "^1.1.5",
+    "@unocss/postcss": "^0.53.5",
+    "@unocss/preset-icons": "^0.53.5",
+    "@unocss/reset": "^0.53.5",
+    "postcss-import": "^15.1.0",
+    "unocss": "^0.53.5"
+  },
+  "scripts": {
+    "css": "postcss -o style/main.css css/*.css"
+  },
+  "dependencies": {
+    "postcss-cli": "^10.1.0"
+  }
+}
