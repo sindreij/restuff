@@ -1,12 +1,13 @@
 [package]
-name = "restuff-api"
+name = "srpc_derive"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+proc-macro = true
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-axum.workspace = true
-serde.workspace = true
-tokio.workspace = true
-srpc.workspace = true
-srpc_derive.workspace = true
+syn = "2.0"
+quote = "1.0"
+proc-macro2 = "1.0.78"

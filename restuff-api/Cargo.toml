@@ -4,3 +4,10 @@ members = ["crates/*"]
 
 [profile.dev.package.sqlx-macros]
 opt-level = 3
+
+[workspace.dependencies]
+srpc = { path = "crates/srpc" }
+srpc_derive = { path = "crates/srpc_derive" }
+axum = { version = "0.7.4", features = ["macros"] }
+serde = { version = "1.0.196", features = ["derive"] }
+tokio = { version = "1.36.0", features = ["full"] }
