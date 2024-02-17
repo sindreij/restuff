@@ -4,7 +4,7 @@ use axum::{
 };
 use serde::Serialize;
 use srpc::SrpcRouter;
-use srpc_derive::SrpcRouter;
+use srpc_derive::srpc_router;
 
 pub fn create_router() -> RpcRouter {
     RpcRouter
@@ -27,37 +27,16 @@ impl From<&str> for SrpcError {
     }
 }
 
-// So this is like t.router
-// #[derive(SrpcRouter)]
-#[derive(SrpcRouter, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct RpcRouter;
 
-// impl SrpcRouter for RpcRouter {
-//     fn call(&self, call: &str) -> Response {
-//         match call {
-//             "user_list" => {
-//                 let users = RpcRouter::user_list();
-//                 axum::Json(users).into_response()
-//             }
-//             "get_first_user" => {
-//                 let user = RpcRouter::get_first_user();
-//                 axum::Json(user).into_response()
-//             }
-//             _ => (
-//                 axum::http::StatusCode::NOT_FOUND,
-//                 axum::Json(SrpcError::from("No such call")),
-//             )
-//                 .into_response(),
-//         }
-//     }
-// }
-
+#[srpc_router]
 impl RpcRouter {
-    fn user_list() -> Vec<User> {
+    pub fn user_list(&self) -> Vec<User> {
         vec![
             User {
                 id: 1,
-                name: "John".to_string(),
+                name: "Joh".to_string(),
             },
             User {
                 id: 2,
@@ -66,16 +45,20 @@ impl RpcRouter {
         ]
     }
 
-    fn get_first_user() -> User {
+    pub fn get_first_user(&self) -> User {
         User {
             id: 1,
             name: "John".to_string(),
         }
     }
+
+    pub fn foobar(&self) -> i32 {
+        42
+    }
 }
 
 #[derive(Serialize)]
-struct User {
+pub struct User {
     id: i32,
     name: String,
 }

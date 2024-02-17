@@ -1,25 +1,55 @@
-use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{self, parse_macro_input, DeriveInput};
+use syn::{self, parse_macro_input, ImplItem};
 
-#[proc_macro_derive(SrpcRouter)]
-pub fn srpc_router_derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    // let ast = syn::parse(input).unwrap();
-    let input = parse_macro_input!(input as DeriveInput);
+#[proc_macro_attribute]
+pub fn srpc_router(
+    _attr: proc_macro::TokenStream,
+    item: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
+    let parsed_item = parse_macro_input!(item as syn::ItemImpl);
 
-    impl_srpc_router(&input).into()
-}
+    let name = &parsed_item.self_ty;
 
-fn impl_srpc_router(ast: &DeriveInput) -> TokenStream {
-    let name = &ast.ident;
+    let calls = parsed_item
+        .items
+        .iter()
+        .filter_map(|item| {
+            if let ImplItem::Fn(item) = item {
+                if let syn::Visibility::Public(_) = item.vis {
+                    Some(item)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
+        .map(|item| {
+            let name = &item.sig.ident;
 
-    dbg!(ast);
+            quote!(
+                stringify!(#name) => {
+                    let result = self.#name();
+                    axum::Json(result).into_response()
+                }
+            )
+        })
+        .collect::<Vec<_>>();
 
-    quote! {
+    quote!(
+        #parsed_item
+
         impl SrpcRouter for #name {
             fn call(&self, call: &str) -> Response {
-                todo!("todo")
+                match call {
+                    #(#calls)*
+                    _ => (
+                        axum::http::StatusCode::NOT_FOUND,
+                        axum::Json(SrpcError::from("No such call")),
+                    ).into_response()
+                }
             }
         }
-    }
+    )
+    .into()
 }
