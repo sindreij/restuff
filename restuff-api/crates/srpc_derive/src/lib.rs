@@ -1,6 +1,8 @@
 use quote::quote;
 use syn::{self, parse_macro_input, ImplItem};
 
+mod ts;
+
 #[proc_macro_attribute]
 pub fn srpc_router(
     _attr: proc_macro::TokenStream,
@@ -36,18 +38,26 @@ pub fn srpc_router(
         })
         .collect::<Vec<_>>();
 
+    let typescript = ts::generate_ts(&parsed_item);
+
     quote!(
         #parsed_item
 
-        impl SrpcRouter for #name {
-            fn call(&self, call: &str) -> Response {
+        impl srpc::SrpcRouter for #name {
+            fn call(&self, call: &str) -> axum::response::Response {
+                use axum::response::IntoResponse;
+
                 match call {
                     #(#calls)*
                     _ => (
                         axum::http::StatusCode::NOT_FOUND,
-                        axum::Json(SrpcError::from("No such call")),
+                        axum::Json(srpc::SrpcError::from("No such call")),
                     ).into_response()
                 }
+            }
+
+            fn generate_ts() -> &'static str {
+                #typescript
             }
         }
     )

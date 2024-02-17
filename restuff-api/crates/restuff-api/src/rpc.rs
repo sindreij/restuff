@@ -1,6 +1,6 @@
 use axum::{
     extract::{Path, State},
-    response::{IntoResponse, Response},
+    response::Response,
 };
 use serde::Serialize;
 use srpc::SrpcRouter;
@@ -12,19 +12,6 @@ pub fn create_router() -> RpcRouter {
 
 pub async fn handle_get(Path(call): Path<String>, router: State<RpcRouter>) -> Response {
     router.call(&call)
-}
-
-#[derive(Serialize)]
-struct SrpcError {
-    message: String,
-}
-
-impl From<&str> for SrpcError {
-    fn from(message: &str) -> Self {
-        SrpcError {
-            message: message.to_string(),
-        }
-    }
 }
 
 #[derive(Clone, Debug)]
