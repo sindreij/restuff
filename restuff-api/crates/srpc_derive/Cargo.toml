@@ -17,3 +17,4 @@ axum.workspace = true
 srpc.workspace = true
 serde.workspace = true
 pretty_assertions = "1.4.0"
+prettier.workspace = true

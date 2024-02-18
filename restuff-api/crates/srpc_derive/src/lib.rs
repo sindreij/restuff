@@ -1,7 +1,15 @@
 use quote::quote;
-use syn::{self, parse_macro_input, ImplItem};
+use syn::{self, parse_macro_input, DeriveInput, ImplItem};
 
-mod ts;
+mod router_typescript;
+mod zod;
+
+#[proc_macro_derive(ZodGen)]
+pub fn zod_gen(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    zod::zod_gen_impl(input).into()
+}
 
 #[proc_macro_attribute]
 pub fn srpc_router(
@@ -38,7 +46,7 @@ pub fn srpc_router(
         })
         .collect::<Vec<_>>();
 
-    let typescript = ts::generate_ts(&parsed_item);
+    let typescript = router_typescript::generate_router_typescript(&parsed_item);
 
     quote!(
         #parsed_item

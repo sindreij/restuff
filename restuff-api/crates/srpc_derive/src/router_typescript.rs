@@ -1,6 +1,6 @@
 use syn::ImplItem;
 
-pub(crate) fn generate_ts(parsed_item: &syn::ItemImpl) -> String {
+pub(crate) fn generate_router_typescript(parsed_item: &syn::ItemImpl) -> String {
     let calls = parsed_item
         .items
         .iter()

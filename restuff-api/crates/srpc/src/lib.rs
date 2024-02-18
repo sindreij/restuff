@@ -1,6 +1,10 @@
 use axum::response::Response;
 use serde::Serialize;
 
+mod zod;
+
+pub use zod::ZodGen;
+
 pub trait HelloMacro {
     fn hello_macro();
 }
