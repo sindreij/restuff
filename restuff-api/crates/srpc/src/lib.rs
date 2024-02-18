@@ -11,7 +11,7 @@ pub trait HelloMacro {
 
 pub trait SrpcRouter {
     fn call(&self, call: &str) -> Response;
-    fn generate_ts() -> &'static str;
+    fn generate_ts() -> String;
 }
 
 #[derive(Serialize)]

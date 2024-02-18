@@ -29,7 +29,7 @@ pub fn zod_gen_impl(input: DeriveInput) -> proc_macro2::TokenStream {
 
                 #(#fields)*
 
-                writeln!(res, "}})");
+                writeln!(res, "}})").unwrap();
 
                 res
             }

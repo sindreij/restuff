@@ -3,7 +3,7 @@ use std::{
     process::{Command, Stdio},
 };
 
-pub fn prettier(input: String) -> String {
+pub fn prettier(input: &str) -> String {
     let mut child = Command::new("npx")
         .arg("prettier")
         .arg("--stdin-filepath")

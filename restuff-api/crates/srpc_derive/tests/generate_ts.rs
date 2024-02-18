@@ -1,3 +1,4 @@
+use prettier::prettier;
 use serde::Serialize;
 use srpc::SrpcRouter;
 use srpc_derive::srpc_router;
@@ -33,9 +34,9 @@ impl Router {
 
 #[test]
 fn test_generate_ts() {
-    let expected = include_str!("./expected.ts").trim();
+    let expected = include_str!("./expected.ts");
 
-    let actual = Router::generate_ts();
+    let actual = prettier(&Router::generate_ts());
 
     assert_eq!(expected, actual);
 }

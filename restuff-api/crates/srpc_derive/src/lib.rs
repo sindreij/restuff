@@ -64,7 +64,7 @@ pub fn srpc_router(
                 }
             }
 
-            fn generate_ts() -> &'static str {
+            fn generate_ts() -> String {
                 #typescript
             }
         }
