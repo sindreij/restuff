@@ -1,17 +1,18 @@
 use prettier::prettier;
 use serde::Serialize;
 use srpc::SrpcRouter;
-use srpc_derive::srpc_router;
+use srpc_derive::{srpc_router, ZodGen};
 
 use pretty_assertions::assert_eq;
 
 struct Router;
 
 #[allow(unused)]
-#[derive(Serialize)]
+#[derive(Serialize, ZodGen)]
 struct User {
     id: i32,
     name: String,
+    foo: Vec<String>,
 }
 
 #[srpc_router]
@@ -21,6 +22,7 @@ impl Router {
         User {
             id: 1,
             name: "Alice".to_string(),
+            foo: vec![],
         }
     }
 
@@ -28,7 +30,12 @@ impl Router {
         User {
             id: 1,
             name: "Bob".to_string(),
+            foo: vec![],
         }
+    }
+
+    pub fn get_users(&self) -> Vec<User> {
+        vec![]
     }
 }
 

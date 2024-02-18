@@ -8,4 +8,4 @@ const root = document.getElementById('root');
 
 render(() => <App />, root!);
 
-client.user_list().then(res => console.log(res));
+client.userList().then(res => console.log(res[0]?.id));

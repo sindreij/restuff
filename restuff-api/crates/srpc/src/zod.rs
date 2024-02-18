@@ -13,3 +13,12 @@ impl ZodGen for String {
         "z.string()".to_string()
     }
 }
+
+impl<T> ZodGen for Vec<T>
+where
+    T: ZodGen,
+{
+    fn generate_zod_schema() -> String {
+        format!("z.array({})", T::generate_zod_schema())
+    }
+}

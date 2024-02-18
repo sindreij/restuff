@@ -8,7 +8,14 @@ mod zod;
 pub fn zod_gen(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    zod::zod_gen_impl(input).into()
+    let res = zod::zod_gen_impl(input);
+
+    // eprintln!(
+    //     "{}",
+    //     prettyplease::unparse(&syn::parse(res.clone().into()).unwrap())
+    // );
+
+    res.into()
 }
 
 #[proc_macro_attribute]
@@ -48,7 +55,7 @@ pub fn srpc_router(
 
     let typescript = router_typescript::generate_router_typescript(&parsed_item);
 
-    quote!(
+    let res = quote!(
         #parsed_item
 
         impl srpc::SrpcRouter for #name {
@@ -68,6 +75,12 @@ pub fn srpc_router(
                 #typescript
             }
         }
-    )
-    .into()
+    );
+
+    // eprintln!(
+    //     "{}",
+    //     prettyplease::unparse(&syn::parse(res.clone().into()).unwrap())
+    // );
+
+    res.into()
 }

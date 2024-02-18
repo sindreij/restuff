@@ -4,7 +4,7 @@ use axum::{
 };
 use serde::Serialize;
 use srpc::SrpcRouter;
-use srpc_derive::srpc_router;
+use srpc_derive::{srpc_router, ZodGen};
 
 pub fn create_router() -> RpcRouter {
     RpcRouter
@@ -44,7 +44,7 @@ impl RpcRouter {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ZodGen)]
 pub struct User {
     id: i32,
     name: String,

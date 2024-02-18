@@ -1,18 +1,19 @@
+use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Data, DeriveInput};
 
-pub fn zod_gen_impl(input: DeriveInput) -> proc_macro2::TokenStream {
+pub fn zod_gen_impl(input: DeriveInput) -> TokenStream {
     let name = &input.ident;
 
     let Data::Struct(content) = input.data else {
         panic!("ZodGen only supports structs right now")
     };
 
-    dbg!(&content);
-
     let fields = content.fields.iter().filter_map(|field| {
         let name = &field.ident.as_ref()?;
-        let typename = &field.ty;
+
+        let typename = fix_typename(&field.ty);
+
         Some(quote! {
             writeln!(res, "{}: {},", stringify!(#name), #typename::generate_zod_schema()).unwrap();
         })
@@ -34,5 +35,31 @@ pub fn zod_gen_impl(input: DeriveInput) -> proc_macro2::TokenStream {
                 res
             }
         }
+    }
+}
+
+pub fn fix_typename(ty: &syn::Type) -> TokenStream {
+    match ty {
+        syn::Type::Path(ty) => {
+            let path = &ty.path;
+
+            let segments = path.segments.iter().map(|segment| {
+                let ident = &segment.ident;
+
+                match &segment.arguments {
+                    syn::PathArguments::None => quote! { #ident },
+                    syn::PathArguments::AngleBracketed(inner) => {
+                        let args = &inner.args;
+                        quote! { #ident::<#args> }
+                    }
+                    syn::PathArguments::Parenthesized(_) => {
+                        panic!("Does not support parenthesized types")
+                    }
+                }
+            });
+
+            quote! { #(#segments).* }
+        }
+        _ => panic!("Unsupported type"),
     }
 }
