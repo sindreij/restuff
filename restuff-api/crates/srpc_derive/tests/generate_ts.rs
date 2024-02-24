@@ -1,3 +1,4 @@
+use axum::Json;
 use prettier::prettier;
 use serde::Serialize;
 use srpc::SrpcRouter;
@@ -18,24 +19,24 @@ struct User {
 #[srpc_router]
 #[allow(unused)]
 impl Router {
-    pub fn get_first_user(&self) -> User {
-        User {
+    pub fn get_first_user(&self) -> Json<User> {
+        Json(User {
             id: 1,
             name: "Alice".to_string(),
             foo: vec![],
-        }
+        })
     }
 
-    pub fn get_second_user(&self) -> User {
-        User {
+    pub fn get_second_user(&self) -> Json<User> {
+        Json(User {
             id: 1,
             name: "Bob".to_string(),
             foo: vec![],
-        }
+        })
     }
 
-    pub fn get_users(&self) -> Vec<User> {
-        vec![]
+    pub fn get_users(&self) -> Json<Vec<User>> {
+        Json(vec![])
     }
 }
 
