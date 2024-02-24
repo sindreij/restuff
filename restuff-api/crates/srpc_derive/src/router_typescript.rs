@@ -3,8 +3,6 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::{ImplItem, ReturnType};
 
-use crate::zod::fix_typename;
-
 pub(crate) fn generate_router_typescript(parsed_item: &syn::ItemImpl) -> TokenStream {
     let (calls, call_schemas) = parsed_item
         .items
@@ -25,21 +23,17 @@ pub(crate) fn generate_router_typescript(parsed_item: &syn::ItemImpl) -> TokenSt
             let camel_case_name = camel_case(name);
             let schema_name = format!("{}Schema", camel_case_name);
             let ReturnType::Type(typ_token, typ) = &item.sig.output else {return None};
-            let typ = fix_typename(typ);
             let typ_span = typ_token.spans[0];
 
+            let call_line = format!("{camel_case_name}: async () => rpcCall('{name}', {schema_name}),");
+
             let call = quote! {
-                writeln!(
-                    res,
-                    "{camel_case_name}: async () => rpcCall('{name}', {schema_name}),",
-                    camel_case_name=#camel_case_name,
-                    name=#name,
-                    schema_name=#schema_name
-                ).unwrap();
+                res.push_str(#call_line);
             };
 
+            let schema_line = format!("export const {schema_name} = {{}};\n");
             let schema = quote_spanned! {typ_span=>
-                writeln!(res, "export const {schema_name} = {};\n", #typ::generate_zod_schema(), schema_name=#schema_name).unwrap();
+                writeln!(res, #schema_line, <#typ as srpc::ZodSchema>::generate_zod_schema()).unwrap();
             };
 
             Some((call, schema))
@@ -47,7 +41,6 @@ pub(crate) fn generate_router_typescript(parsed_item: &syn::ItemImpl) -> TokenSt
 
     quote! {
         use std::fmt::Write;
-        use srpc::ZodSchema;
 
         let mut res = String::new();
 
