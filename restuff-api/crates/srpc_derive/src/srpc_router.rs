@@ -33,9 +33,9 @@ pub(crate) fn srpc_router_impl(parsed_item: syn::ItemImpl) -> TokenStream {
                 Some((ident.clone(), &item.ty))
             }).collect::<Vec<_>>();
 
-            let (query_params, params_calls) = params.iter().map(|(ident, ty)| {
+            let (params_input, params_calls) = params.iter().map(|(ident, ty)| {
                 let query_param = quote!(#ident: #ty);
-                let param_call = quote!(params.#ident);
+                let param_call = quote!(input.#ident);
 
                 (query_param, param_call)
             }).unzip::<_, _, Vec<_>, Vec<_>>();
@@ -48,15 +48,23 @@ pub(crate) fn srpc_router_impl(parsed_item: syn::ItemImpl) -> TokenStream {
             quote!(
                 stringify!(#name) => {
                     #[derive(serde::Deserialize)]
-                    struct QueryParams {
+                    struct Input {
                         #(
-                            #query_params
+                            #params_input
                         ),*
                     }
 
-                    let axum::extract::Query(params) = match axum::extract::Query::<QueryParams>::try_from_uri(&uri) {
+                    let axum::extract::Query(query) = match axum::extract::Query::<srpc::SrpcQueryParams>::try_from_uri(&uri) {
                         Ok(params) => params,
                         Err(err) => return err.into_response(),
+                    };
+
+                    let input = match query.get_input::<Input>() {
+                        Ok(input) => input,
+                        Err(err) => return (
+                            axum::http::StatusCode::BAD_REQUEST,
+                            axum::Json(srpc::SrpcError::from(err.to_string()))
+                        ).into_response(),
                     };
 
                     let result = #call;
@@ -133,16 +141,26 @@ mod tests {
                 match call {
                     stringify!(my_call) => {
                         #[derive(serde::Deserialize)]
-                        struct QueryParams {
+                        struct Input {
                             this_is_a_param: String,
                         }
-                        let axum::extract::Query(params) = match axum::extract::Query::<
-                            QueryParams,
+                        let axum::extract::Query(query) = match axum::extract::Query::<
+                            srpc::SrpcQueryParams,
                         >::try_from_uri(&uri) {
                             Ok(params) => params,
                             Err(err) => return err.into_response(),
                         };
-                        let result = self.my_call(params.this_is_a_param).await;
+                        let input = match query.get_input::<Input>() {
+                            Ok(input) => input,
+                            Err(err) => {
+                                return (
+                                    axum::http::StatusCode::BAD_REQUEST,
+                                    axum::Json(srpc::SrpcError::from(err.to_string())),
+                                )
+                                    .into_response();
+                            }
+                        };
+                        let result = self.my_call(input.this_is_a_param).await;
                         result.into_response()
                     }
                     _ => {

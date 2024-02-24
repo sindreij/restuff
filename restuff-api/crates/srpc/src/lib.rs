@@ -2,6 +2,9 @@ use async_trait::async_trait;
 use axum::{http::Uri, response::Response};
 use serde::Serialize;
 
+pub use query::SrpcQueryParams;
+
+mod query;
 mod zod;
 
 pub use zod::ZodSchema;
@@ -22,5 +25,11 @@ impl From<&str> for SrpcError {
         SrpcError {
             message: message.to_string(),
         }
+    }
+}
+
+impl From<String> for SrpcError {
+    fn from(message: String) -> Self {
+        SrpcError { message: message }
     }
 }

@@ -29,8 +29,12 @@ export const getFirstUserSchema = z.object({
 
 export const foobarSchema = z.number();
 
+type GetThingParams = {
+    id: string;
+};
+
 export const client = {
-    getThing: async () => rpcCall('get_thing', getThingSchema),
+    getThing: async (params: GetThingParams) => rpcCall('get_thing', getThingSchema, params),
     setThingName: async () => rpcCall('set_thing_name', setThingNameSchema),
     userList: async () => rpcCall('user_list', userListSchema),
     getFirstUser: async () => rpcCall('get_first_user', getFirstUserSchema),

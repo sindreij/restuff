@@ -9,3 +9,4 @@ async-trait = "0.1.77"
 axum.workspace = true
 chrono = "0.4.34"
 serde.workspace = true
+serde_json.workspace = true

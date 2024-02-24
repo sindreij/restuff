@@ -10,4 +10,4 @@ render(() => <App />, root!);
 
 // client.setThingName();
 
-client.getThing().then(res => console.log(res));
+client.getThing({ id: '1' }).then(res => console.log(res));

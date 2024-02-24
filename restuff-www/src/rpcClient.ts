@@ -3,9 +3,9 @@ import { z } from 'zod';
 export async function rpcCall<Schema extends z.ZodTypeAny>(
     call: string,
     schema: Schema,
-    queryParams?: Record<string, string>
+    input?: unknown
 ): Promise<z.infer<Schema>> {
-    let urlSearchParams = new URLSearchParams(queryParams);
+    let urlSearchParams = `?input=${encodeURIComponent(JSON.stringify(input))}`;
 
     let res = await fetch(`/api/srpc/${call}` + urlSearchParams.toString(), {
         signal: AbortSignal.timeout(10000),
