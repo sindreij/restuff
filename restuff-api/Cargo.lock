@@ -2019,6 +2019,7 @@ dependencies = [
  "axum",
  "change-case",
  "insta",
+ "itertools",
  "prettier",
  "pretty_assertions",
  "prettyplease",

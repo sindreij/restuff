@@ -36,6 +36,6 @@ type GetUserParams = {
 export const client = {
     getFirstUser: async () => rpcCall('get_first_user', getFirstUserSchema),
     getSecondUser: async () => rpcCall('get_second_user', getSecondUserSchema),
-    getUsers: async () => rpcCall('get_users', getUsersSchema),
     getUser: async (params: GetUserParams) => rpcCall('get_user', getUserSchema, params),
+    getUsers: async () => rpcCall('get_users', getUsersSchema),
 };

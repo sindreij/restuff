@@ -1,43 +1,97 @@
-use change_case::camel_case;
+use std::fmt::Write;
+
+use change_case::{camel_case, pascal_case};
+use itertools::multiunzip;
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
-use syn::{ImplItem, ReturnType};
+use syn::{ImplItem, Pat, ReturnType};
 
 pub(crate) fn generate_router_typescript(parsed_item: &syn::ItemImpl) -> TokenStream {
-    let (calls, call_schemas) = parsed_item
-        .items
-        .iter()
-        .filter_map(|item| {
-            if let ImplItem::Fn(item) = item {
-                if let syn::Visibility::Public(_) = item.vis {
-                    Some(item)
+    let (calls, call_schemas, call_params): (Vec<_>, Vec<_>, Vec<_>) = multiunzip(
+        parsed_item
+            .items
+            .iter()
+            .filter_map(|item| {
+                if let ImplItem::Fn(item) = item {
+                    if let syn::Visibility::Public(_) = item.vis {
+                        Some(item)
+                    } else {
+                        None
+                    }
                 } else {
                     None
                 }
-            } else {
-                None
-            }
-        })
-        .filter_map(|item| {
-            let name = &item.sig.ident.to_string();
-            let camel_case_name = camel_case(name);
-            let schema_name = format!("{}Schema", camel_case_name);
-            let ReturnType::Type(typ_token, typ) = &item.sig.output else {return None};
-            let typ_span = typ_token.spans[0];
+            })
+            .filter_map(|item| {
+                let name = &item.sig.ident.to_string();
+                let camel_case_name = camel_case(name);
+                let pascal_case_name = pascal_case(name);
+                let params_name = format!("{}Params", pascal_case_name);
+                let schema_name = format!("{}Schema", camel_case_name);
+                let ReturnType::Type(typ_token, typ) = &item.sig.output else {
+                    return None;
+                };
+                let typ_span = typ_token.spans[0];
 
-            let call_line = format!("{camel_case_name}: async () => rpcCall('{name}', {schema_name}),\n");
+                let params = item
+                    .sig
+                    .inputs
+                    .iter()
+                    .filter_map(|item| {
+                        let syn::FnArg::Typed(item) = item else {
+                            return None;
+                        };
+                        let Pat::Ident(ident) = &*item.pat else {
+                            return None;
+                        };
 
-            let call = quote! {
-                res.push_str(#call_line);
-            };
+                        Some((ident.clone(), &item.ty))
+                    })
+                    .collect::<Vec<_>>();
 
-            let schema_line = format!("export const {schema_name} = {{}};\n");
-            let schema = quote_spanned! {typ_span=>
-                writeln!(res, #schema_line, <#typ as srpc::ZodSchema>::generate_zod_schema()).unwrap();
-            };
+                let maybe_param_in = if params.is_empty() {
+                    String::new()
+                } else {
+                    format!("params: {params_name}")
+                };
 
-            Some((call, schema))
-        }).unzip::<_, _, Vec<_>, Vec<_>>();
+                let maybe_param_out = if params.is_empty() {
+                    ""
+                } else {
+                    ", params"
+                };
+
+                let call_line =
+                    format!("{camel_case_name}: async ({maybe_param_in}) => rpcCall('{name}', {schema_name}{maybe_param_out}),\n");
+
+                let call = quote! {
+                    res.push_str(#call_line);
+                };
+
+                let schema_line = format!("export const {schema_name} = {{}};\n");
+                let schema = quote_spanned! {typ_span=>
+                    writeln!(res,
+                            #schema_line, <#typ as srpc::ZodSchema>::generate_zod_schema()
+                    ).unwrap();
+                };
+
+                let params_output = if params.is_empty() {
+                    None
+                } else {
+                    let mut params_output = format!("type {params_name} = {{\n");
+
+                    for (ident, _ty) in params.iter() {
+                        let ident = &ident.ident;
+                        write!(params_output, "{ident}: string,\n").unwrap();
+                    }
+
+                    params_output.push_str("};\n\n");
+                    Some(quote!(res.push_str(#params_output);))
+                };
+
+                Some((call, schema, params_output))
+            }),
+    );
 
     quote! {
         use std::fmt::Write;
@@ -52,6 +106,8 @@ pub(crate) fn generate_router_typescript(parsed_item: &syn::ItemImpl) -> TokenSt
         res.push_str("\n");
 
         #(#call_schemas)*
+
+        #(#call_params)*
 
         res.push_str("export const client = {\n");
 

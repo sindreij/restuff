@@ -24,20 +24,20 @@ pub(crate) fn srpc_router_impl(parsed_item: syn::ItemImpl) -> TokenStream {
         .map(|item| {
             let name = &item.sig.ident;
 
-            let (query_params, params_calls) = item.sig.inputs.iter().filter_map(|item| {
-                if let syn::FnArg::Typed(item) = item {
-                    let Pat::Ident(ident) = &*item.pat else {
-                        return None;
-                    };
-                    let ty = &item.ty;
+            let params = item.sig.inputs.iter().filter_map(|item| {
+                let syn::FnArg::Typed(item) = item else {return None};
+                let Pat::Ident(ident) = &*item.pat else {
+                    return None;
+                };
 
-                    let query_param = quote!(#ident: #ty);
-                    let param_call = quote!(params.#ident);
+                Some((ident.clone(), &item.ty))
+            }).collect::<Vec<_>>();
 
-                    Some((query_param, param_call))
-                } else {
-                    None
-                }
+            let (query_params, params_calls) = params.iter().map(|(ident, ty)| {
+                let query_param = quote!(#ident: #ty);
+                let param_call = quote!(params.#ident);
+
+                (query_param, param_call)
             }).unzip::<_, _, Vec<_>, Vec<_>>();
 
             let call = match item.sig.asyncness {
@@ -167,8 +167,11 @@ mod tests {
                     ::generate_zod_schema()
                 )
                     .unwrap();
+                res.push_str("type MyCallParams = {\nthis_is_a_param: string,\n};\n\n");
                 res.push_str("export const client = {\n");
-                res.push_str("myCall: async () => rpcCall('my_call', myCallSchema),\n");
+                res.push_str(
+                    "myCall: async (params: MyCallParams) => rpcCall('my_call', myCallSchema, params),\n",
+                );
                 res.push_str("};\n\n");
                 res
             }

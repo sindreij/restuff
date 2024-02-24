@@ -13,6 +13,7 @@ quote = "1.0"
 proc-macro2 = "1.0.78"
 prettyplease = "0.2.16"
 change-case = "0.2.0"
+itertools = "0.12.1"
 
 [dev-dependencies]
 axum.workspace = true
