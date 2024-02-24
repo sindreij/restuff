@@ -2018,6 +2018,7 @@ dependencies = [
  "async-trait",
  "axum",
  "change-case",
+ "insta",
  "prettier",
  "pretty_assertions",
  "prettyplease",

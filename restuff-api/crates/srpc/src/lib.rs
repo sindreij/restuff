@@ -1,18 +1,14 @@
 use async_trait::async_trait;
-use axum::response::Response;
+use axum::{http::Uri, response::Response};
 use serde::Serialize;
 
 mod zod;
 
-pub use zod::ZodGen;
-
-pub trait HelloMacro {
-    fn hello_macro();
-}
+pub use zod::ZodSchema;
 
 #[async_trait]
 pub trait SrpcRouter {
-    async fn call(&self, call: &str) -> Response;
+    async fn call(&self, call: &str, uri: Uri) -> Response;
     fn generate_ts() -> String;
 }
 

@@ -6,7 +6,7 @@ pub fn zod_gen_impl(input: DeriveInput) -> TokenStream {
     let name = &input.ident;
 
     let Data::Struct(content) = input.data else {
-        panic!("ZodGen only supports structs right now")
+        panic!("ZodSchema only supports structs right now")
     };
 
     let fields = content.fields.iter().filter_map(|field| {
@@ -20,7 +20,7 @@ pub fn zod_gen_impl(input: DeriveInput) -> TokenStream {
     });
 
     quote! {
-        impl srpc::ZodGen for #name {
+        impl srpc::ZodSchema for #name {
             fn generate_zod_schema() -> String {
                 use std::fmt::Write;
 

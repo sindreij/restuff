@@ -13,3 +13,4 @@ axum = { version = "0.7.4", features = ["macros"] }
 serde = { version = "1.0.196", features = ["derive"] }
 tokio = { version = "1.36.0", features = ["full"] }
 async-trait = "0.1.77"
+insta = { version = "1.34.0", features = ["serde"] }

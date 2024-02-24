@@ -2,14 +2,14 @@ use axum::Json;
 use prettier::prettier;
 use serde::Serialize;
 use srpc::SrpcRouter;
-use srpc_derive::{srpc_router, ZodGen};
+use srpc_derive::{srpc_router, ZodSchema};
 
 use pretty_assertions::assert_eq;
 
 struct Router;
 
 #[allow(unused)]
-#[derive(Serialize, ZodGen)]
+#[derive(Serialize, ZodSchema)]
 struct User {
     id: i32,
     name: String,
@@ -30,6 +30,14 @@ impl Router {
     pub fn get_second_user(&self) -> Json<User> {
         Json(User {
             id: 1,
+            name: "Bob".to_string(),
+            foo: vec![],
+        })
+    }
+
+    pub fn get_user(&self, id: i32) -> Json<User> {
+        Json(User {
+            id,
             name: "Bob".to_string(),
             foo: vec![],
         })

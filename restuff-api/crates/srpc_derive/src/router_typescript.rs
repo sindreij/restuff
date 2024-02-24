@@ -47,7 +47,7 @@ pub(crate) fn generate_router_typescript(parsed_item: &syn::ItemImpl) -> TokenSt
 
     quote! {
         use std::fmt::Write;
-        use srpc::ZodGen;
+        use srpc::ZodSchema;
 
         let mut res = String::new();
 

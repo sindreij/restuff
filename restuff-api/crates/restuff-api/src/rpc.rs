@@ -1,13 +1,14 @@
 use anyhow::Result;
 use axum::{
     extract::{Path, State},
+    http::Uri,
     response::Response,
     Json,
 };
 use serde::Serialize;
 use sqlx::SqlitePool;
 use srpc::SrpcRouter;
-use srpc_derive::{srpc_router, ZodGen};
+use srpc_derive::{srpc_router, ZodSchema};
 
 use crate::{
     http_error::HttpError,
@@ -18,8 +19,9 @@ pub fn create_router(db: &SqlitePool) -> RpcRouter {
     RpcRouter { db: db.clone() }
 }
 
-pub async fn handle_get(Path(call): Path<String>, router: State<RpcRouter>) -> Response {
-    router.call(&call).await
+#[axum::debug_handler]
+pub async fn handle_get(Path(call): Path<String>, uri: Uri, router: State<RpcRouter>) -> Response {
+    router.call(&call, uri).await
 }
 
 #[derive(Clone, Debug)]
@@ -29,8 +31,7 @@ pub struct RpcRouter {
 
 #[srpc_router]
 impl RpcRouter {
-    pub async fn get_thing(&self /* , id: i64*/) -> Result<Json<Option<Thing>>, HttpError> {
-        let id = 1;
+    pub async fn get_thing(&self, id: i64) -> Result<Json<Option<Thing>>, HttpError> {
         Ok(Json(thing::get_thing(&self.db, id).await?))
     }
 
@@ -65,7 +66,7 @@ impl RpcRouter {
     }
 }
 
-#[derive(Serialize, ZodGen)]
+#[derive(Serialize, ZodSchema)]
 pub struct User {
     id: i32,
     name: String,

@@ -15,6 +15,12 @@ export const getSecondUserSchema = z.object({
     foo: z.array(z.string()),
 });
 
+export const getUserSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+    foo: z.array(z.string()),
+});
+
 export const getUsersSchema = z.array(
     z.object({
         id: z.number(),
@@ -27,4 +33,9 @@ export const client = {
     getFirstUser: async () => rpcCall('get_first_user', getFirstUserSchema),
     getSecondUser: async () => rpcCall('get_second_user', getSecondUserSchema),
     getUsers: async () => rpcCall('get_users', getUsersSchema),
+    getUser: async (params: GetUserParams) => rpcCall('get_user', getUserSchema, params),
+};
+
+type GetUserParams = {
+    id: string;
 };

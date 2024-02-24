@@ -6,7 +6,7 @@ use sqlx::{
     types::chrono::{DateTime, Utc},
     SqlitePool,
 };
-use srpc_derive::ZodGen;
+use srpc_derive::ZodSchema;
 
 use crate::events::{self, get_all_events};
 
@@ -44,7 +44,7 @@ pub async fn get_thing(db: &SqlitePool, id: i64) -> Result<Option<Thing>> {
     Ok(Some(thing))
 }
 
-#[derive(Serialize, ZodGen)]
+#[derive(Serialize, ZodSchema)]
 pub struct Thing {
     id: i64,
     created_at: DateTime<Utc>,
