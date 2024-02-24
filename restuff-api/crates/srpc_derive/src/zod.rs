@@ -14,8 +14,10 @@ pub fn zod_gen_impl(input: DeriveInput) -> TokenStream {
 
         let typename = &field.ty;
 
+        let line = format!("{name}: {{}},");
+
         Some(quote! {
-            writeln!(res, "{}: {},", stringify!(#name), <#typename>::generate_zod_schema()).unwrap();
+            writeln!(res, #line, <#typename>::generate_zod_schema()).unwrap();
         })
     });
 
@@ -26,11 +28,11 @@ pub fn zod_gen_impl(input: DeriveInput) -> TokenStream {
 
                 let mut res = String::new();
 
-                writeln!(res, "z.object({{").unwrap();
+                res.push_str("z.object({\n");
 
                 #(#fields)*
 
-                writeln!(res, "}})").unwrap();
+                res.push_str("})\n");
 
                 res
             }
