@@ -70,7 +70,7 @@ pub(crate) fn generate_router_typescript(parsed_item: &syn::ItemImpl) -> TokenSt
                 let schema = quote_spanned! {typ_span=>
                     writeln!(res,
                             #schema_line,
-                            <#typ as srpc::ZodSchema>::generate_zod_schema()
+                            <#typ as srpc::SrpcOutput>::generate_zod_schema()
                     ).unwrap();
                 };
 
@@ -83,7 +83,7 @@ pub(crate) fn generate_router_typescript(parsed_item: &syn::ItemImpl) -> TokenSt
                         let ident = &ident.ident;
                         let line = format!("{ident}: {{}},\n");
 
-                        quote!(write!(res, #line, <#ty as srpc::TsInput>::generate_ts_input_type()).unwrap();)
+                        quote!(write!(res, #line, <#ty as srpc::SrpcInput>::generate_ts_input_type()).unwrap();)
                     });
 
                     Some(quote!(

@@ -1,9 +1,9 @@
-use srpc::ZodSchema;
-use srpc_derive::ZodSchema;
+use srpc::SrpcOutput;
+use srpc_derive::SrpcOutput;
 
 use prettier::prettier;
 
-#[derive(ZodSchema)]
+#[derive(SrpcOutput)]
 #[allow(unused)]
 struct User {
     name: String,

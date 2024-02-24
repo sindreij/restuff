@@ -8,7 +8,7 @@ use axum::{
 use serde::Serialize;
 use sqlx::SqlitePool;
 use srpc::SrpcRouter;
-use srpc_derive::{srpc_router, ZodSchema};
+use srpc_derive::{srpc_router, SrpcOutput};
 
 use crate::{
     http_error::HttpError,
@@ -66,7 +66,7 @@ impl RpcRouter {
     }
 }
 
-#[derive(Serialize, ZodSchema)]
+#[derive(Serialize, SrpcOutput)]
 pub struct User {
     id: i32,
     name: String,

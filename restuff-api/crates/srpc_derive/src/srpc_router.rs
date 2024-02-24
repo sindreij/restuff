@@ -181,13 +181,13 @@ mod tests {
                 res.push_str("import { z } from 'zod';\n");
                 res.push_str("\n");
                 writeln!(
-                    res, "export const myCallSchema = {};\n", < i32 as srpc::ZodSchema >
+                    res, "export const myCallSchema = {};\n", < i32 as srpc::SrpcOutput >
                     ::generate_zod_schema()
                 )
                     .unwrap();
                 res.push_str("type MyCallParams = {\n");
                 write!(
-                    res, "this_is_a_param: {},\n", < String as srpc::TsInput >
+                    res, "this_is_a_param: {},\n", < String as srpc::SrpcInput >
                     ::generate_ts_input_type()
                 )
                     .unwrap();

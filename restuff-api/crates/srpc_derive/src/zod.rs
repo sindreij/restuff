@@ -2,11 +2,11 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Data, DeriveInput};
 
-pub fn zod_gen_impl(input: DeriveInput) -> TokenStream {
+pub fn sprc_output_impl(input: DeriveInput) -> TokenStream {
     let name = &input.ident;
 
     let Data::Struct(content) = input.data else {
-        panic!("ZodSchema only supports structs right now")
+        panic!("SrpcOutput only supports structs right now")
     };
 
     let fields = content.fields.iter().filter_map(|field| {
@@ -22,7 +22,7 @@ pub fn zod_gen_impl(input: DeriveInput) -> TokenStream {
     });
 
     quote! {
-        impl srpc::ZodSchema for #name {
+        impl srpc::SrpcOutput for #name {
             fn generate_zod_schema() -> String {
                 use std::fmt::Write;
 

@@ -5,20 +5,20 @@ mod srpc_router;
 mod ts_input;
 mod zod;
 
-#[proc_macro_derive(ZodSchema)]
-pub fn zod_schema(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+#[proc_macro_derive(SrpcOutput)]
+pub fn srpc_input(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    let res = zod::zod_gen_impl(input);
+    let res = zod::sprc_output_impl(input);
 
     res.into()
 }
 
-#[proc_macro_derive(TsInput)]
-pub fn ts_input(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+#[proc_macro_derive(SrpcInput)]
+pub fn sprc_output(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    let res = ts_input::ts_input_impl(input);
+    let res = ts_input::sprc_input_impl(input);
 
     res.into()
 }

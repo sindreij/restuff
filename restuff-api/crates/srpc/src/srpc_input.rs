@@ -1,20 +1,20 @@
-pub trait TsInput {
+pub trait SrpcInput {
     fn generate_ts_input_type() -> String;
 }
 
-impl TsInput for i32 {
+impl SrpcInput for i32 {
     fn generate_ts_input_type() -> String {
         "number".to_string()
     }
 }
 
-impl TsInput for i64 {
+impl SrpcInput for i64 {
     fn generate_ts_input_type() -> String {
         "number".to_string()
     }
 }
 
-impl TsInput for String {
+impl SrpcInput for String {
     fn generate_ts_input_type() -> String {
         "string".to_string()
     }

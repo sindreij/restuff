@@ -3,12 +3,12 @@ use axum::{http::Uri, response::Response};
 use serde::Serialize;
 
 pub use query::SrpcQueryParams;
-pub use ts_input::TsInput;
-pub use zod::ZodSchema;
+pub use srpc_input::SrpcInput;
+pub use srpc_output::SrpcOutput;
 
 mod query;
-mod ts_input;
-mod zod;
+mod srpc_input;
+mod srpc_output;
 
 #[async_trait]
 pub trait SrpcRouter {

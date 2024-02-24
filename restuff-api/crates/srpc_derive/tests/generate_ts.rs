@@ -2,14 +2,14 @@ use axum::Json;
 use prettier::prettier;
 use serde::Serialize;
 use srpc::SrpcRouter;
-use srpc_derive::{srpc_router, ZodSchema};
+use srpc_derive::{srpc_router, SrpcOutput};
 
 use pretty_assertions::assert_eq;
 
 struct Router;
 
 #[allow(unused)]
-#[derive(Serialize, ZodSchema)]
+#[derive(Serialize, SrpcOutput)]
 struct User {
     id: i32,
     name: String,
