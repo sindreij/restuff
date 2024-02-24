@@ -185,7 +185,13 @@ mod tests {
                     ::generate_zod_schema()
                 )
                     .unwrap();
-                res.push_str("type MyCallParams = {\nthis_is_a_param: string,\n};\n\n");
+                res.push_str("type MyCallParams = {\n");
+                write!(
+                    res, "this_is_a_param: {},\n", < String as srpc::TsInput >
+                    ::generate_ts_input_type()
+                )
+                    .unwrap();
+                res.push_str("}\n\n");
                 res.push_str("export const client = {\n");
                 res.push_str(
                     "myCall: async (params: MyCallParams) => rpcCall('my_call', myCallSchema, params),\n",

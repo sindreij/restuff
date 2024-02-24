@@ -43,6 +43,14 @@ impl Router {
         })
     }
 
+    pub fn create_user(&self, name: String, age: i32) -> Json<User> {
+        Json(User {
+            id: 1,
+            name,
+            foo: vec![],
+        })
+    }
+
     pub fn get_users(&self) -> Json<Vec<User>> {
         Json(vec![])
     }

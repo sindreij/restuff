@@ -2,6 +2,7 @@ use syn::{self, parse_macro_input, DeriveInput};
 
 mod router_typescript;
 mod srpc_router;
+mod ts_input;
 mod zod;
 
 #[proc_macro_derive(ZodSchema)]
@@ -10,10 +11,14 @@ pub fn zod_schema(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 
     let res = zod::zod_gen_impl(input);
 
-    // eprintln!(
-    //     "{}",
-    //     prettyplease::unparse(&syn::parse(res.clone().into()).unwrap())
-    // );
+    res.into()
+}
+
+#[proc_macro_derive(TsInput)]
+pub fn ts_input(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    let res = ts_input::ts_input_impl(input);
 
     res.into()
 }

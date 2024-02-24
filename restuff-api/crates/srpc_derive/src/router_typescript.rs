@@ -1,5 +1,3 @@
-use std::fmt::Write;
-
 use change_case::{camel_case, pascal_case};
 use itertools::multiunzip;
 use proc_macro2::TokenStream;
@@ -71,22 +69,28 @@ pub(crate) fn generate_router_typescript(parsed_item: &syn::ItemImpl) -> TokenSt
                 let schema_line = format!("export const {schema_name} = {{}};\n");
                 let schema = quote_spanned! {typ_span=>
                     writeln!(res,
-                            #schema_line, <#typ as srpc::ZodSchema>::generate_zod_schema()
+                            #schema_line,
+                            <#typ as srpc::ZodSchema>::generate_zod_schema()
                     ).unwrap();
                 };
 
                 let params_output = if params.is_empty() {
                     None
                 } else {
-                    let mut params_output = format!("type {params_name} = {{\n");
+                    let start_line = format!("type {params_name} = {{\n");
 
-                    for (ident, _ty) in params.iter() {
+                    let lines = params.iter().map(|(ident, ty)| {
                         let ident = &ident.ident;
-                        write!(params_output, "{ident}: string,\n").unwrap();
-                    }
+                        let line = format!("{ident}: {{}},\n");
 
-                    params_output.push_str("};\n\n");
-                    Some(quote!(res.push_str(#params_output);))
+                        quote!(write!(res, #line, <#ty as srpc::TsInput>::generate_ts_input_type()).unwrap();)
+                    });
+
+                    Some(quote!(
+                        res.push_str(#start_line);
+                        #(#lines)*
+                        res.push_str("}\n\n");
+                    ))
                 };
 
                 Some((call, schema, params_output))

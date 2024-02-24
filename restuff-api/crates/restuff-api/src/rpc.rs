@@ -31,8 +31,8 @@ pub struct RpcRouter {
 
 #[srpc_router]
 impl RpcRouter {
-    pub async fn get_thing(&self, id: String) -> Result<Json<Option<Thing>>, HttpError> {
-        Ok(Json(thing::get_thing(&self.db, id.parse().unwrap()).await?))
+    pub async fn get_thing(&self, id: i64) -> Result<Json<Option<Thing>>, HttpError> {
+        Ok(Json(thing::get_thing(&self.db, id).await?))
     }
 
     pub async fn set_thing_name(&self) -> Result<Json<()>, HttpError> {

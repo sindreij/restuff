@@ -30,7 +30,7 @@ export const getFirstUserSchema = z.object({
 export const foobarSchema = z.number();
 
 type GetThingParams = {
-    id: string;
+    id: number;
 };
 
 export const client = {
