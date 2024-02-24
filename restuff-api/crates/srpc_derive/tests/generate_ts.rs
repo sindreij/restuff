@@ -43,6 +43,7 @@ impl Router {
         })
     }
 
+    #[srpc(post)]
     pub fn create_user(&self, name: String, age: i32) -> Json<User> {
         Json(User {
             id: 1,

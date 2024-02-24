@@ -1,10 +1,16 @@
+use darling::FromMeta;
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{self, ImplItem, Pat};
+use syn::{self, Attribute, ImplItem, Pat};
 
 use crate::router_typescript;
 
-pub(crate) fn srpc_router_impl(parsed_item: syn::ItemImpl) -> TokenStream {
+#[derive(Default, Debug, FromMeta)]
+pub struct Lorem {
+    post: bool,
+}
+
+pub(crate) fn srpc_router_impl(mut parsed_item: syn::ItemImpl) -> TokenStream {
     let name = &parsed_item.self_ty;
 
     let calls = parsed_item
@@ -23,6 +29,9 @@ pub(crate) fn srpc_router_impl(parsed_item: syn::ItemImpl) -> TokenStream {
         })
         .map(|item| {
             let name = &item.sig.ident;
+
+
+            let meta = parse_srpc_attrs::<Lorem>(&item.attrs).unwrap().unwrap_or_default();
 
             let params = item.sig.inputs.iter().filter_map(|item| {
                 let syn::FnArg::Typed(item) = item else {return None};
@@ -76,6 +85,11 @@ pub(crate) fn srpc_router_impl(parsed_item: syn::ItemImpl) -> TokenStream {
 
     let typescript = router_typescript::generate_router_typescript(&parsed_item);
 
+    for item in &mut parsed_item.items {
+        let ImplItem::Fn(item) = item else { continue };
+        item.attrs.retain(|attr| !attr.path().is_ident("srpc"));
+    }
+
     let res = quote!(
         #parsed_item
 
@@ -105,6 +119,15 @@ pub(crate) fn srpc_router_impl(parsed_item: syn::ItemImpl) -> TokenStream {
     // );
 
     res
+}
+
+pub fn parse_srpc_attrs<T: FromMeta>(attrs: &[Attribute]) -> Result<Option<T>, darling::Error> {
+    for attr in attrs {
+        if attr.path().is_ident("srpc") {
+            return Ok(Some(T::from_meta(&attr.meta)?));
+        }
+    }
+    Ok(None)
 }
 
 #[cfg(test)]
