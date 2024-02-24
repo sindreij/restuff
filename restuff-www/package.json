@@ -19,6 +19,7 @@
     "vite-plugin-solid": "^2.8.2"
   },
   "dependencies": {
+    "@solidjs/router": "^0.12.3",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/node": "^20.11.19",
     "@unocss/preset-uno": "^0.58.5",

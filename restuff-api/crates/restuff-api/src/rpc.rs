@@ -1,26 +1,47 @@
+use anyhow::Result;
 use axum::{
     extract::{Path, State},
     response::Response,
+    Json,
 };
 use serde::Serialize;
+use sqlx::SqlitePool;
 use srpc::SrpcRouter;
 use srpc_derive::{srpc_router, ZodGen};
 
-pub fn create_router() -> RpcRouter {
-    RpcRouter
+use crate::{
+    http_error::HttpError,
+    thing::{self, Thing, ThingEvent},
+};
+
+pub fn create_router(db: &SqlitePool) -> RpcRouter {
+    RpcRouter { db: db.clone() }
 }
 
 pub async fn handle_get(Path(call): Path<String>, router: State<RpcRouter>) -> Response {
-    router.call(&call)
+    router.call(&call).await
 }
 
 #[derive(Clone, Debug)]
-pub struct RpcRouter;
+pub struct RpcRouter {
+    db: SqlitePool,
+}
 
 #[srpc_router]
 impl RpcRouter {
-    pub fn user_list(&self) -> Vec<User> {
-        vec![
+    pub async fn get_thing(&self /* , id: i64*/) -> Result<Json<Option<Thing>>, HttpError> {
+        let id = 1;
+        Ok(Json(thing::get_thing(&self.db, id).await?))
+    }
+
+    pub async fn set_thing_name(&self) -> Result<Json<()>, HttpError> {
+        thing::add_event(&self.db, 1, ThingEvent::SetName("foobar".to_string())).await?;
+
+        Ok(Json(()))
+    }
+
+    pub fn user_list(&self) -> Json<Vec<User>> {
+        Json(vec![
             User {
                 id: 1,
                 name: "Joh".to_string(),
@@ -29,18 +50,18 @@ impl RpcRouter {
                 id: 2,
                 name: "Doe".to_string(),
             },
-        ]
+        ])
     }
 
-    pub fn get_first_user(&self) -> User {
-        User {
+    pub fn get_first_user(&self) -> Json<User> {
+        Json(User {
             id: 1,
             name: "John".to_string(),
-        }
+        })
     }
 
-    pub fn foobar(&self) -> i32 {
-        42
+    pub fn foobar(&self) -> Json<i32> {
+        Json(42)
     }
 }
 

@@ -44,10 +44,15 @@ pub fn srpc_router(
         .map(|item| {
             let name = &item.sig.ident;
 
+            let call = match item.sig.asyncness {
+                Some(_) => quote!(self.#name().await),
+                None => quote!(self.#name()),
+            };
+
             quote!(
                 stringify!(#name) => {
-                    let result = self.#name();
-                    axum::Json(result).into_response()
+                    let result = #call;
+                    result.into_response()
                 }
             )
         })
@@ -58,8 +63,9 @@ pub fn srpc_router(
     let res = quote!(
         #parsed_item
 
+        #[async_trait::async_trait]
         impl srpc::SrpcRouter for #name {
-            fn call(&self, call: &str) -> axum::response::Response {
+            async fn call(&self, call: &str) -> axum::response::Response {
                 use axum::response::IntoResponse;
 
                 match call {

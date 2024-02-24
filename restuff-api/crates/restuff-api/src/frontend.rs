@@ -1,12 +1,11 @@
 use anyhow::Result;
-use axum::http::Uri;
+use axum::http::{HeaderMap, Uri};
 use axum::response::Response;
 
-use hyper::HeaderMap;
 use once_cell::sync::Lazy;
 use reqwest::redirect;
 
-use crate::http_utils::{response_from_reqwest_body, HttpError};
+use crate::{http_error::HttpError, http_utils::response_from_reqwest_body};
 
 static FRONTEND_SERVER: Lazy<String> =
     Lazy::new(|| std::env::var("FRONTEND_HOST").expect("You need to set FRONTEND_HOST"));

@@ -3,6 +3,18 @@
 import { rpcCall } from './rpcClient';
 import { z } from 'zod';
 
+export const getThingSchema = z.nullable(
+    z.object({
+        id: z.number(),
+        created_at: z.string().datetime(),
+        name: z.string(),
+        description: z.string(),
+        is_in_thing: z.number(),
+    })
+);
+
+export const setThingNameSchema = z.null();
+
 export const userListSchema = z.array(
     z.object({
         id: z.number(),
@@ -18,6 +30,8 @@ export const getFirstUserSchema = z.object({
 export const foobarSchema = z.number();
 
 export const client = {
+    getThing: async () => rpcCall('get_thing', getThingSchema),
+    setThingName: async () => rpcCall('set_thing_name', setThingNameSchema),
     userList: async () => rpcCall('user_list', userListSchema),
     getFirstUser: async () => rpcCall('get_first_user', getFirstUserSchema),
     foobar: async () => rpcCall('foobar', foobarSchema),

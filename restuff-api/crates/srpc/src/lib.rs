@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use axum::response::Response;
 use serde::Serialize;
 
@@ -9,8 +10,9 @@ pub trait HelloMacro {
     fn hello_macro();
 }
 
+#[async_trait]
 pub trait SrpcRouter {
-    fn call(&self, call: &str) -> Response;
+    async fn call(&self, call: &str) -> Response;
     fn generate_ts() -> String;
 }
 

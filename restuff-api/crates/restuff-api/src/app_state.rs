@@ -5,4 +5,5 @@ use crate::rpc::RpcRouter;
 #[derive(Clone, Debug, FromRef)]
 pub struct AppState {
     pub rpc_router: RpcRouter,
+    pub db_pool: sqlx::SqlitePool,
 }

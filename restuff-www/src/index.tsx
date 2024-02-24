@@ -8,4 +8,6 @@ const root = document.getElementById('root');
 
 render(() => <App />, root!);
 
-client.userList().then(res => console.log(res[0]?.id));
+// client.setThingName();
+
+client.getThing().then(res => console.log(res));
